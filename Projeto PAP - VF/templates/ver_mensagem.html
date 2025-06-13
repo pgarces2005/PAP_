@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4"><i class="fas fa-envelope-open-text me-2"></i>Visualizar Mensagem</h1>
+    
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h5 class="mb-0">{{ mensagem.assunto }}</h5>
+                    <small class="text-muted">
+                        De: {{ mensagem.nome }} ({{ mensagem.email }})
+                    </small>
+                </div>
+                <span class="badge {% if mensagem.lida %}bg-success{% else %}bg-warning{% endif %}">
+                    {% if mensagem.lida %}Lida{% else %}Não Lida{% endif %}
+                </span>
+            </div>
+        </div>
+        <div class="card-body">
+            <p class="card-text">{{ mensagem.mensagem }}</p>
+            <small class="text-muted">Enviada em: {{ mensagem.data_envio }}</small>
+        </div>
+    </div>
+    
+    <div class="mt-4 d-flex justify-content-between">
+        <a href="{{ url_for('admin') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left me-2"></i>Voltar
+        </a>
+        <a href="{{ url_for('excluir_mensagem', id=mensagem.id) }}" 
+           class="btn btn-danger"
+           onclick="return confirm('Tem certeza que deseja excluir esta mensagem?')">
+            <i class="fas fa-trash me-2"></i>Excluir
+        </a>
+    </div>
+</div>
+{% endblock %} 

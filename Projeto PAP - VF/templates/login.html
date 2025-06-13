@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}Login - Entertainment News{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-5">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h1 class="h3 mb-4 text-center">Login</h1>
+                    
+                    <form method="POST" action="{{ url_for('login') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">Entrar</button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="mb-0">
+                            Não tem uma conta? 
+                            <a href="{{ url_for('register') }}" class="text-primary">Registre-se</a>
+                        </p>
+                        <p class="mt-2">
+                            <a href="{{ url_for('esqueci_senha') }}" class="text-muted">Esqueceu sua senha?</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

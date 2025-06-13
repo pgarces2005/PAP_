@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4"><i class="fas fa-edit me-2"></i>Editar Notícia</h1>
+    
+    <form method="POST" enctype="multipart/form-data">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="mb-3">
+            <label for="titulo" class="form-label">Título</label>
+            <input type="text" class="form-control" id="titulo" name="titulo" value="{{ noticia.titulo }}" required>
+        </div>
+        
+        <div class="mb-3">
+            <label for="categoria" class="form-label">Categoria</label>
+            <select class="form-select" id="categoria" name="categoria" required>
+                <option value="">Selecione uma categoria</option>
+                {% for categoria in categorias %}
+                <option value="{{ categoria.id }}" {% if categoria.id == noticia.id_categoria %}selected{% endif %}>
+                    {{ categoria.nome }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="mb-3">
+            <label for="conteudo" class="form-label">Conteúdo</label>
+            <textarea class="form-control" id="conteudo" name="conteudo" rows="10" required>{{ noticia.conteudo }}</textarea>
+        </div>
+        
+        <div class="mb-3">
+            <label for="imagem" class="form-label">Nova Imagem (opcional)</label>
+            <input type="file" class="form-control" id="imagem" name="imagem" accept="image/*">
+            {% if noticia.imagem %}
+            <div class="mt-2">
+                <small class="text-muted">Imagem atual:</small><br>
+                <img src="{{ url_for('static', filename='uploads/' + noticia.imagem) }}" alt="Imagem atual" class="img-thumbnail" style="max-height: 200px;">
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="d-flex justify-content-between">
+            <a href="{{ url_for('admin') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Voltar
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-save me-2"></i>Salvar Alterações
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Adicionar TinyMCE para edição rica do conteúdo -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.3/tinymce.min.js"></script>
+<script>
+    tinymce.init({
+        selector: '#conteudo',
+        plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table code help wordcount',
+        toolbar: 'undo redo | formatselect | bold italic underline strikethrough | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat',
+        height: 400,
+        menubar: true,
+        branding: false,
+        promotion: false,
+        convert_urls: false,
+        relative_urls: false,
+        remove_script_host: false,
+        setup: function(editor) {
+            editor.on('change', function() {
+                editor.save(); // Garante que o conteúdo é salvo no textarea
+            });
+        }
+    });
+</script>
+{% endblock %} 

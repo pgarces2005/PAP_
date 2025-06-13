@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <h1 class="mb-4"><i class="fas fa-cog me-2"></i>Painel Administrativo</h1>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Notícias</h5>
+                    <p class="card-text display-4">{{ total_noticias }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Utilizadores</h5>
+                    <p class="card-text display-4">{{ total_usuarios }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <h5 class="card-title">Total de Categorias</h5>
+                    <p class="card-text display-4">{{ categorias|length }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-newspaper me-2"></i>Notícias</h5>
+                    <a href="{{ url_for('admin_nova_noticia') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-plus me-1"></i>Nova Notícia
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for noticia in noticias %}
+                        <div class="list-group-item">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">{{ noticia.titulo }}</h6>
+                                <small>{{ noticia.data_publicacao.strftime('%d/%m/%Y') }}</small>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small>Por: {{ noticia.autor }}</small>
+                                <div class="btn-group">
+                                    <a href="{{ url_for('admin_editar_noticia', id=noticia.id) }}" class="btn btn-sm btn-warning">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ url_for('admin_excluir_noticia', id=noticia.id) }}" method="POST" style="display: inline;">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Tem certeza que deseja excluir esta notícia?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Categorias</h5>
+                    <a href="/admin/categorias" class="btn btn-primary btn-sm">
+                        <i class="fas fa-cog me-1"></i>Gerenciar
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for categoria in categorias %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            {{ categoria.nome }}
+                            <span class="badge bg-primary rounded-pill">
+                                {{ categoria.total_noticias if categoria.total_noticias else 0 }}
+                            </span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if session['user_id'] and session['email'] == '2016fontespedro@gmail.com' %}
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-users me-2"></i>Gerenciamento de Utilizadores</h5>
+                    <a href="{{ url_for('listar_usuarios') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-cog me-1"></i>Gerenciar Utilizadores
+                    </a>
+                </div>
+                <div class="card-body">
+                    <p class="mb-0">
+                        Como administrador principal, você tem acesso ao gerenciamento completo de utilizadores,
+                        incluindo a capacidade de definir permissões de administrador.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %} 

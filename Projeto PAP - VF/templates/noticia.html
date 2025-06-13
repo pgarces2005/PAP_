@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ noticia.titulo }} - Entertainment News{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Notícia Principal -->
+            <article>
+                <h1 class="mb-4">{{ noticia.titulo }}</h1>
+                
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <span class="text-muted">
+                            <i class="fas fa-user me-1"></i>{{ noticia.autor }}
+                        </span>
+                        <span class="mx-2">|</span>
+                        <span class="text-muted">
+                            <i class="fas fa-folder me-1"></i>{{ noticia.categoria }}
+                        </span>
+                    </div>
+                    <span class="text-muted">
+                        <i class="fas fa-calendar me-1"></i>{{ noticia.data_publicacao }}
+                    </span>
+                </div>
+                
+                {% if noticia.imagem %}
+                <div class="mb-4 d-flex justify-content-start">
+                    <img src="{{ url_for('static', filename='img/' + noticia.imagem) }}" 
+                         class="img-fluid rounded" 
+                         alt="{{ noticia.titulo }}"
+                         style="max-height: 400px; object-fit: contain; max-width: 70%;">
+                </div>
+                {% endif %}
+                
+                <div class="noticia-conteudo">
+                    {{ noticia.conteudo|safe }}
+                </div>
+            </article>
+            
+            <!-- Compartilhar -->
+            <div class="mt-5">
+                <h5 class="mb-3">Compartilhar</h5>
+                <div class="d-flex gap-2">
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.url }}" 
+                       target="_blank" class="btn btn-primary">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url={{ request.url }}&text={{ noticia.titulo }}" 
+                       target="_blank" class="btn btn-info">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="https://wa.me/?text={{ noticia.titulo }}%20{{ request.url }}" 
+                       target="_blank" class="btn btn-success">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Comentários -->
+            <div class="mt-5">
+                <h4 class="mb-4">
+                    <i class="fas fa-comments me-2"></i>Comentários
+                    <span class="badge bg-secondary">{{ comentarios|length }}</span>
+                </h4>
+                
+                {% if session.user_id %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <form method="POST" action="{{ url_for('comentar') }}">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="noticia_id" value="{{ noticia.id }}">
+                            <div class="mb-3">
+                                <label for="comentario" class="form-label">Deixe seu comentário</label>
+                                <textarea class="form-control" id="comentario" name="comentario" rows="3" required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <a href="{{ url_for('login') }}">Faça login</a> para deixar um comentário.
+                </div>
+                {% endif %}
+                
+                {% if comentarios %}
+                <div class="comentarios">
+                    {% for comentario in comentarios %}
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="card-subtitle mb-0">
+                                    <i class="fas fa-user me-1"></i>{{ comentario.autor }}
+                                </h6>
+                                <div>
+                                    <small class="text-muted">
+                                        <i class="fas fa-clock me-1"></i>{{ comentario.data_comentario }}
+                                    </small>
+                                    {% if session.user_id == comentario.id_utilizador or session.is_admin %}
+                                    <form action="{{ url_for('excluir_comentario', comment_id=comentario.id) }}" method="POST" class="d-inline">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button type="submit" class="btn btn-sm btn-danger ms-2" 
+                                                onclick="return confirm('Tem certeza que deseja excluir este comentário?')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <p class="card-text">{{ comentario.conteudo }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="alert alert-light">
+                    <i class="fas fa-comment-slash me-2"></i>Ainda não há comentários.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <!-- Notícias Relacionadas -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-newspaper me-2"></i>Notícias Relacionadas
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% if noticias_relacionadas %}
+                        {% for noticia_rel in noticias_relacionadas %}
+                        <div class="mb-3">
+                            <h6>
+                                <a href="{{ url_for('ver_noticia', id=noticia_rel.id) }}" class="text-decoration-none">
+                                    {{ noticia_rel.titulo }}
+                                </a>
+                            </h6>
+                            <small class="text-muted">
+                                <i class="fas fa-user me-1"></i>{{ noticia_rel.autor_nome }}
+                                <span class="mx-1">•</span>
+                                <i class="fas fa-calendar me-1"></i>{{ noticia_rel.data_publicacao }}
+                            </small>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-info-circle me-2"></i>Não há notícias relacionadas.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

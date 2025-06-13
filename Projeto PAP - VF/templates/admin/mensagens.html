@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Mensagens - Painel Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Mensagens de Contato</h1>
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a href="{{ url_for('admin') }}">Painel</a></li>
+                <li class="breadcrumb-item active">Mensagens</li>
+            </ol>
+        </nav>
+    </div>
+
+    {% if mensagens %}
+    <div class="card">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Status</th>
+                            <th>Data</th>
+                            <th>Nome</th>
+                            <th>Email</th>
+                            <th>Assunto</th>
+                            <th>Mensagem</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for msg in mensagens %}
+                        <tr class="{{ 'table-light' if msg.lida else '' }}">
+                            <td>
+                                <button 
+                                    class="btn btn-sm {{ 'btn-success' if msg.lida else 'btn-secondary' }}"
+                                    onclick="marcarComoLida({{ msg.id }}, this)"
+                                    title="{{ 'Marcar como não lida' if msg.lida else 'Marcar como lida' }}"
+                                >
+                                    <i class="fas {{ 'fa-check-circle' if msg.lida else 'fa-circle' }}"></i>
+                                </button>
+                            </td>
+                            <td>{{ msg.data_formatada }}</td>
+                            <td>{{ msg.nome }}</td>
+                            <td>
+                                <a href="mailto:{{ msg.email }}" class="text-decoration-none">
+                                    {{ msg.email }}
+                                </a>
+                            </td>
+                            <td>{{ msg.assunto }}</td>
+                            <td>
+                                <button 
+                                    type="button" 
+                                    class="btn btn-link p-0" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#mensagemModal{{ msg.id }}"
+                                >
+                                    {{ msg.mensagem[:50] + '...' if msg.mensagem|length > 50 else msg.mensagem }}
+                                </button>
+                            </td>
+                            <td>
+                                <form action="{{ url_for('excluir_mensagem', id=msg.id) }}" method="POST" class="d-inline">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button 
+                                        type="submit" 
+                                        class="btn btn-danger btn-sm"
+                                        onclick="return confirm('Tem certeza que deseja excluir esta mensagem?')"
+                                    >
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+
+                        <!-- Modal para exibir a mensagem completa -->
+                        <div class="modal fade" id="mensagemModal{{ msg.id }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Mensagem de {{ msg.nome }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p class="mb-2"><strong>Assunto:</strong> {{ msg.assunto }}</p>
+                                        <p class="mb-2"><strong>Email:</strong> {{ msg.email }}</p>
+                                        <p class="mb-2"><strong>Data:</strong> {{ msg.data_formatada }}</p>
+                                        <hr>
+                                        <p class="mb-0">{{ msg.mensagem }}</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                        <a href="mailto:{{ msg.email }}" class="btn btn-primary">
+                                            <i class="fas fa-reply me-1"></i>Responder
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+            <h3 class="h4 mb-2">Nenhuma mensagem</h3>
+            <p class="text-muted mb-0">Não há mensagens de contato para exibir.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function marcarComoLida(id, button) {
+    fetch(`/admin/mensagem/${id}/marcar-lida`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token() }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Atualizar o botão
+            if (data.lida) {
+                button.classList.replace('btn-secondary', 'btn-success');
+                button.querySelector('i').classList.replace('fa-circle', 'fa-check-circle');
+                button.title = 'Marcar como não lida';
+                button.closest('tr').classList.add('table-light');
+            } else {
+                button.classList.replace('btn-success', 'btn-secondary');
+                button.querySelector('i').classList.replace('fa-check-circle', 'fa-circle');
+                button.title = 'Marcar como lida';
+                button.closest('tr').classList.remove('table-light');
+            }
+        } else {
+            alert('Erro ao atualizar o status da mensagem');
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        alert('Erro ao atualizar o status da mensagem');
+    });
+}
+</script>
+{% endblock %} 

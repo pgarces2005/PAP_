@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="text-center mb-5">
+    <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Entertainment News Logo" class="img-fluid mb-4" style="max-height: 200px;">
+    <h1 class="display-4 fw-bold text-dark">Bem-vindo ao Entertainment News</h1>
+    <p class="lead text-dark">Fique por dentro das últimas notícias do mundo do entretenimento, cinema, música, jogos e muito mais!</p>
+</section>
+
+<!-- Latest News Section -->
+{% if noticias %}
+<section class="hero-section py-5">
+    <div class="container">
+        <h2 class="text-center mb-4">Últimas Notícias</h2>
+        <div class="row">
+            {% for noticia in noticias %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100">
+                    {% if noticia.imagem %}
+                    <img src="{{ url_for('static', filename='img/' + noticia.imagem) }}" 
+                         class="card-img-top" 
+                         alt="{{ noticia.titulo }}"
+                         style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    <div class="card-body">
+                        <h5 class="card-title">{{ noticia.titulo }}</h5>
+                        <p class="card-text">
+                            {{ noticia.conteudo|safe|truncate(150) }}
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ noticia.autor }}</small>
+                            <a href="{{ url_for('noticia', id=noticia.id) }}" class="btn btn-primary">Ler mais</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Call to Action -->
+{% if not session.user_id %}
+<section class="text-center py-5 bg-light rounded">
+    <h2 class="mb-3">Quer ficar por dentro de tudo?</h2>
+    <p class="lead mb-4">Registre-se agora para receber as últimas notícias e atualizações!</p>
+    <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg">Registrar Agora</a>
+</section>
+{% endif %}
+{% endblock %}

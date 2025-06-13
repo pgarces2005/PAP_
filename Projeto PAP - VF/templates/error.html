@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block title %}Erro - Entertainment News{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+            <div class="card shadow">
+                <div class="card-body p-5">
+                    <h1 class="h3 mb-4 text-danger">
+                        <i class="fas fa-exclamation-triangle me-2"></i>Erro no Servidor
+                    </h1>
+                    
+                    <p class="lead mb-4">
+                        Desculpe, ocorreu um erro ao processar sua solicitação. 
+                        Nossa equipe técnica foi notificada e está trabalhando para resolver o problema.
+                    </p>
+                    
+                    <div class="d-grid gap-3 col-lg-6 mx-auto">
+                        <a href="{{ url_for('index') }}" class="btn btn-primary">
+                            <i class="fas fa-home me-2"></i>Voltar para a Página Inicial
+                        </a>
+                        <a href="{{ url_for('login') }}" class="btn btn-outline-primary">
+                            <i class="fas fa-sign-in-alt me-2"></i>Tentar Login Novamente
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
